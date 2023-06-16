@@ -14,8 +14,8 @@
 <body>
     <div class="content">
         <div class="display">   <!-- Operation and result -->
-            <div id="operation-display">36 &#247; 6 =</div>     <!-- !! remove dummy data !! -->
-            <div id="number-display">6</div>
+            <div id="display-operation"></div>
+            <div id="display-value"></div>
         </div>
 
         <div class="row1">  <!-- CLEAR and DELETE buttons -->
@@ -25,35 +25,35 @@
 
         <div class="row2">  <!-- +/-, %, sqrt, and / buttons -->
             <button id="plus-minus">&plusmn;</button>
-            <button id="modulus">%</button>
-            <button id="sqrt">&radic;</button>
-            <button id="divide">&#247;</button>
+            <button class="operator" id="modulus">%</button>
+            <button class="operator" id="sqrt">&radic;</button>
+            <button class="operator" id="divide">&#247;</button>
         </div>
 
         <div class="row3">  <!-- 7, 8, 9, and x buttons -->
-            <button id="seven">7</button>
-            <button id="eight">8</button>
-            <button id="nine">9</button>
-            <button id="multiply">x</button>
+            <button class="digit" id="7">7</button>
+            <button class="digit" id="8">8</button>
+            <button class="digit" id="9">9</button>
+            <button class="operator" id="multiply">x</button>
         </div>
 
         <div class="row4">  <!-- 4, 5, 6, and - buttons -->
-            <button id="four">4</button>
-            <button id="five">5</button>
-            <button id="six">6</button>
-            <button id="subtract">-</button>
+            <button class="digit" id="4">4</button>
+            <button class="digit" id="5">5</button>
+            <button class="digit" id="6">6</button>
+            <button class="operator" id="subtract">-</button>
         </div>
 
         <div class="row5">  <!-- 1, 2, 3, and + buttons -->
-            <button id="one">1</button>
-            <button id="two">2</button>
-            <button id="three">3</button>
-            <button id="add">+</button>
+            <button class="digit" id="1">1</button>
+            <button class="digit" id="2">2</button>
+            <button class="digit" id="3">3</button>
+            <button class="operator" id="add">+</button>
         </div>
 
         <div class="row6">  <!-- 0 (long), ., and = buttons -->
-            <button id="zero">0</button>
-            <button id="decimal">.</button>
+            <button class="digit" id="0">0</button>
+            <button class="digit" id=".">.</button>
             <button id="equals">=</button>
         </div>
 
