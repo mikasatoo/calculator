@@ -1,37 +1,28 @@
-// "add" operation
-const add = function(x, y) {
-    return x + y;
-};
+// Object with each operator function
+const operations = {
+    add: function(x, y) {
+        return x + y;
+    },
 
-// "subtract" operation
-const subtract = function(x, y) {
-    return x - y;
-};
+    subtract: function(x, y) {
+        return x - y;
+    },
 
-// "multiply" operation - !! might need to change this to an array?? !!
-const multiply = function(x, y) {
-    return x * y;
-};
+    multiply: function(x, y) {
+        return x * y;
+    },
 
-// "divide" operation
-const divide = function(x, y) {
-    return x / y;
-};
+    divide: function(x, y) {
+        return x / y;
+    },
 
-// "modulus" operation
-const modulus = function(x, y) {
-    return x % y;
-};
+    modulus: function(x, y) {
+        return x % y;
+    },
 
-// "sqrt" operation
-const sqrt = function(x) {
-    return Math.sqrt(x);
-};
-
-// "operate" function
-function operate(x, operator, y) {
-    result = operator(x, y);
-    displayValue.textContent = result;
+    sqrt: function(x) {
+        return Math.sqrt(x);
+    }
 };
 
 // References to HTML elements
@@ -55,7 +46,6 @@ let result;
 function selectDigit(digit) {
     // Call the updateCurrentValue() function
     updateCurrentValue(digit);
-    console.log(digit);
 
     // If the "." button has been clicked, change decimalAccepted setting to "no"
     if (digit === ".") {
@@ -71,8 +61,15 @@ function updateCurrentValue(digit) {
 
 // Function to set first number and operator/s for the calc when operator is selected
 function setCalcVariables1(operatorId, operatorDisplay) {
-    // Set num1 to currentValue if NOT blank (converted into a number)
-    if (currentValue !== "") num1 = Number(currentValue);
+    // Set value of num1:
+    // If currentValue is blank and operatorId is NOT sqrt, set num1 to zero
+    if (currentValue === "" && operatorId !== "sqrt") {
+        num1 = 0;
+        updateCurrentValue("0");
+    // Else if currentValue is NOT blank, set num1 to currentValue (converted into a number)
+    } else if (currentValue !== "") {
+        num1 = Number(currentValue);
+    };
 
     // If operator is blank, set OperatorValue1 and text for displayOperation
     if (operatorValue1 === "") {
@@ -82,43 +79,66 @@ function setCalcVariables1(operatorId, operatorDisplay) {
     } else {
         operatorValue2 = operatorId;
         displayOperation.textContent += " " + operatorDisplay;
-    }
+    };
     
     // Reset currentValue and decimalAccepted
     currentValue = "";
-    updateCurrentValue("");
+    displayValue.textContent = currentValue;
     decimalAccepted = "yes";
 };
 
-
-
-// ***** UP TO THIS FUNCTION 
-    // - OPERATE FUNCTION ABOVE NOT WORKING (NEED TO OBJECTS FOR THE OPERATOR FUNCTIONS)
-    // - NEED TO CONSIDER HOW TO ADJUST FOR sqrt BEING USED AS operatorValue1 OR operatorValue2
-// *****
-
-    // Function to set second number for the calc when "equals" is selected
-    // !! OR when another operator is selected!!
+// Function to set number/s and operator/s for the calc when "equals" is selected
+// ***** OR when another operator is selected
 function setCalcVariables2() {
-    // Set num2 to currentValue if NOT blank (converted into a number)
-    if (currentValue !== "") num2 = Number(currentValue);
+    // Set value of num1 or num2:
+    // If currentValue is NOT blank...
+    if (currentValue !== "") {
+        // If num1 has not been defined yet (e.g. when using "sqrt"), set num1 to currentValue (converted into a number)
+        if (num1 === undefined) {
+            num1 = Number(currentValue);
+        // Else, set num2 to currentValue (converted into a number)
+        } else {
+            num2 = Number(currentValue);
+        };
+    };
 
-    // Call the operate() function
-    // If there is only one operator
+    // Call the operate() function:
+    // If there is only one operator...
     if (operatorValue2 === "") {
-        operate(num1, operatorValue1, num2);
-        displayOperation.textContent += " " + currentValue + "=";
-    // Else if there are two operators
+        // If the operator is "sqrt", pass in only num1
+        if (operatorValue1 === "sqrt") {
+            operate(num1, operatorValue1);
+        // Else, pass in num1 and num2
+        } else {
+            operate(num1, operatorValue1, num2);
+        };
+    // Else if there are two operators (operatorValue2 being "sqrt"), pass in num1, num2, and both operators
     } else {
-        operate();
-    }
+        operate(num1, operatorValue1, num2, operatorValue2);
+    };
+    displayOperation.textContent += " " + currentValue + " " + "=";
     
     // Reset currentValue and decimalAccepted
     currentValue = "";
-    updateCurrentValue("");
     decimalAccepted = "yes";
 };
 
+// Function to call relevant operation and display result (rounded to 10 dec. places)
+function operate(x, operator1, y, operator2) {
+    // If y is not defined, pass in only x
+    if (y === undefined) {
+        result = operations[operator1](x);
+    // Else if operator2 is not defined, pass in x and y
+    } else if (operator2 === undefined) {
+        result = operations[operator1](x, y);
+    // Else, set z by passing y into the second operation (sqrt) and then pass x and z into the first operation
+    } else {
+        z = operations[operator2](y);
+        result = operations[operator1](x, z);
+    };
+
+    displayValue.textContent = Number(result.toFixed(10));
+};
 
 
 // Add event listener (click) to each digit button
@@ -140,7 +160,7 @@ function makeDigitsClickable() {
 function makeOperatorsClickable() {
     operatorButtons.forEach((operatorButton => {
         operatorButton.addEventListener("click", () => {
-            // If operatorValue1 is blank 
+            // If operatorValue1 is blank (i.e. no operator has been defined yet)
                 // OR if operatorValue1 is not "sqrt" AND the "sqrt" button has been clicked AND operatorValue2 is blank (not yet entered), 
                 // call the setCalcVariables1() function
             if ((operatorValue1 === "") || (operatorValue1 !== "sqrt" && operatorButton.id === "sqrt" && operatorValue2 === "")) {
@@ -156,15 +176,12 @@ function makeOperatorsClickable() {
 // Add an event listener (click) to the "equals" button
 function makeEqualsClickable() {
     equalsButton.addEventListener("click", () => {
-        // if currentValue is NOT blank
-            // OR if operatorValue1 is "sqrt" AND num1 is NOT undefined
-            // call the setCalcVariables2() function
-        if (currentValue !== "" || operatorValue1 === "sqrt" && num1 !== undefined) {
+        // Call the setCalcVariables2() function if operatorValue1 and currentValue are NOT blank 
+            // (i.e. one operator and two numbers OR sqrt and one number have been selected/entered)
+        if ((operatorValue1 !== "" && currentValue !== "")) {
             setCalcVariables2();
-        // Else, display an alert message
-        } else {
-            alert("You have not entered a valid operation!");
         };
+        // Otherwise, do nothing
     });
 };
 
