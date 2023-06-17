@@ -179,7 +179,7 @@ function deleteLastOperator() {
         // If num1 has been defined, set currentValue to num1 (converted into a string) - so that it will then be deleted if DELETE is clicked again
         if (num1 != undefined) {
             currentValue = num1.toString();
-            console.log(currentValue);
+            num1 = null;
         };
     // Else, reset value of operatorValue2
     } else {
