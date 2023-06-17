@@ -32,6 +32,8 @@ const operatorButtons = document.querySelectorAll("button.operator");
 const displayValue = document.getElementById("display-value");
 const displayOperation = document.getElementById("display-operation");
 const equalsButton = document.getElementById("equals");
+const deleteButton = document.getElementById("delete");
+const clearButton = document.getElementById("clear");
 
 // Other global variables
 let decimalAccepted = "yes";    // indicates whether a decimal can be accepted in the current value
@@ -55,8 +57,17 @@ function selectDigit(digit) {
 
 // Function to update and display value as digits are entered
 function updateCurrentValue(digit) {
+    // Append digit to currentValue
     currentValue += digit;
-    displayValue.textContent = currentValue;
+
+    // If the displayOperation text content is NOT blank but operatorValue1 has NOT been defined (i.e. only a number is shown in displayOperation), 
+        // update the displayOperation text content
+    if (displayOperation.textContent !== "" && operatorValue1 === "") {
+        displayOperation.textContent = currentValue;
+    // Else, update the displayValue text content
+    } else {
+        displayValue.textContent = currentValue;
+    };
 };
 
 // Function to set first number and operator/s for the calc when operator is selected
@@ -94,7 +105,8 @@ function setCalcVariables2() {
     // If currentValue is NOT blank...
     if (currentValue !== "") {
         // If num1 has not been defined yet (e.g. when using "sqrt"), set num1 to currentValue (converted into a number)
-        if (num1 === undefined) {
+            // (using loose equality since null == undefined returns true)
+        if (num1 == undefined) {
             num1 = Number(currentValue);
         // Else, set num2 to currentValue (converted into a number)
         } else {
@@ -138,6 +150,60 @@ function operate(x, operator1, y, operator2) {
     };
 
     displayValue.textContent = Number(result.toFixed(10));
+};
+
+// Function to delete the last digit entered when the DELETE button is clicked (and a number is being entered)
+function deleteLastDigit() {
+    let lastDigit = currentValue.substring(currentValue.length - 1, currentValue.length);
+
+    // Reset decimalAccepted if the lastDigit is "."
+    if (lastDigit === ".") decimalAccepted = "yes";
+
+    // Remove the last character from the currentValue string
+    currentValue = currentValue.substring(0, currentValue.length - 1);
+
+    // If the displayValue text content is NOT blank (i.e. a number is still being entered), update the displayValue text content
+    if (displayValue.textContent !== "") {
+        displayValue.textContent = currentValue;
+    // Else, update the displayOperation text content
+    } else {
+        displayOperation.textContent = currentValue;
+    };
+};
+
+// Function to delete the last operator when the DELETE button is clicked (and an operator was last entered)
+function deleteLastOperator() {
+    // If there is only one operator, reset value of operatorValue1
+    if (operatorValue2 === "") {
+        operatorValue1 = "";
+        // If num1 has been defined, set currentValue to num1 (converted into a string) - so that it will then be deleted if DELETE is clicked again
+        if (num1 != undefined) {
+            currentValue = num1.toString();
+            console.log(currentValue);
+        };
+    // Else, reset value of operatorValue2
+    } else {
+        operatorValue2 = "";
+    };
+
+    // Remove the last operator (and the space) from the displayOperation string
+    let operationStr = displayOperation.textContent;
+    operationStr = operationStr.substring(0, operationStr.length - 2);
+    displayOperation.textContent = operationStr;
+};
+
+// Function to reset all data (stored values and display) when the CLEAR button is clicked
+function clearData() {
+    decimalAccepted = "yes";
+    currentValue = "";
+    operatorValue1 = "";
+    operatorValue2 = "";
+    num1 = null;
+    num2 = null;
+    result = null;
+
+    displayValue.textContent = "";
+    displayOperation.textContent = "";
 };
 
 
@@ -185,7 +251,30 @@ function makeEqualsClickable() {
     });
 };
 
+// Add an event listener (click) to the "DELETE" button
+function makeDeleteClickable() {
+    deleteButton.addEventListener("click", () => {
+        // If currentValue is NOT blank (i.e. a number is currently being entered, call the deleteLastDigit() function
+        if (currentValue !== "") {
+            deleteLastDigit();
+        // Else if currentValue is blank AND an operator has been entered, call the deleteLastOperator() function
+        } else if (currentValue === "" && (operatorValue1 !== "" || operatorValue2 !== "")) {
+            deleteLastOperator();
+        };
+    });
+};
+
+// Add an event listener (click) to the "CLEAR" button
+function makeClearClickable() {
+    clearButton.addEventListener("click", () => {
+        clearData();
+    });
+};
+
+
 // Initialization
 makeDigitsClickable();
 makeOperatorsClickable();
 makeEqualsClickable();
+makeDeleteClickable();
+makeClearClickable();
