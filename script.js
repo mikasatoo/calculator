@@ -34,15 +34,17 @@ const displayOperation = document.getElementById("display-operation");
 const equalsButton = document.getElementById("equals");
 const deleteButton = document.getElementById("delete");
 const clearButton = document.getElementById("clear");
+const plusMinusButton = document.getElementById("plus-minus");
 
 // Other global variables
 let isDecimalAccepted = "yes";
 let currentValue = "";
 let num1;
 let operator;
-let extraSqrtOperator;
+let sqrtOperator;
 let num2;
 let nextOperator;
+let num3;
 let result;
 
 // Function to update currentValue and isDecimalAccepted when digit is clicked
@@ -57,14 +59,12 @@ function selectDigit(digit) {
 function updateCurrentValue(digit) {
     const isDisplayOperationBlank = displayOperation.textContent === "";
     const isOperatorDefined = operator != undefined;
+    const isSqrtOperatorDefined = sqrtOperator != undefined;
 
     currentValue += digit;
 
-    if (!isDisplayOperationBlank && !isOperatorDefined) {
-        displayOperation.textContent = currentValue;
-    } else {
-        displayValue.textContent = currentValue;
-    };
+    if (!isDisplayOperationBlank && !isOperatorDefined && !isSqrtOperatorDefined) displayOperation.textContent = currentValue;
+    displayValue.textContent = currentValue;
 };
 
 // Function to set first number in the calculator operation when operator is selected
@@ -76,6 +76,7 @@ function setNum1(operatorId) {
     if (isCurrentValueBlank) {
         if (isResultDefined) {
             num1 = result;
+            updateCurrentValue(Number(num1.toFixed(8)).toString());
         } else if (!isThisOperatorSqrt) {
             num1 = 0;
             updateCurrentValue("0");
@@ -87,67 +88,141 @@ function setNum1(operatorId) {
 
 // Function to set operator in the calculator operation when operator is selected
 function setOperator(operatorId, operatorDisplay) {
-    operator = operatorId;
+    const isThisOperatorSqrt = operatorId === "sqrt";
+
+    if (isThisOperatorSqrt) {
+        setSqrtOperator(operatorId, operatorDisplay);
+    } else {
+        operator = operatorId;
+    };
     displayOperation.textContent = currentValue + " " + operatorDisplay;
 
     currentValue = "";
-    displayValue.textContent = currentValue;
     isDecimalAccepted = "yes";
 };
 
-// Function to set extraSqrtOperator in the calculator operation when sqrt operator is selected
-function setExtraSqrtOperator(operatorId, operatorDisplay) {
-    extraSqrtOperator = operatorId;
-    displayOperation.textContent += " " + operatorDisplay;
+// Function to set sqrtOperator in the calculator operation when sqrt operator is selected
+function setSqrtOperator(operatorId, operatorDisplay) {
+    const isNum1Defined = num1 != undefined;
+    const isOperatorDefined = operator != undefined;
+    const isCurrentValueBlank = currentValue === "";
+
+    sqrtOperator = operatorId;
+
+    if (isNum1Defined && !isOperatorDefined) {
+        operator = "multiply";
+        displayOperation.textContent += " " + operatorDisplay;
+    } else if (!isCurrentValueBlank) {
+        num2 = Number(currentValue);
+        displayOperation.textContent += " " + currentValue + " " + operatorDisplay;
+        currentValue = "";
+    } else {
+        displayOperation.textContent += " " + operatorDisplay;
+    };
 };
 
-// Function to set second number in the calculator operation when "equals" or another operator is selected
+// Function to set second (or third) number in the calculator operation when "equals" or another operator is selected
     // and call the getResult() function
 function setNum2(operatorId) {
     const isEqualsSelected = operatorId === "equals";
+    const isNum2Defined = num2 != undefined;
 
-    num2 = Number(currentValue);
+    if (isNum2Defined) {
+        num3 = Number(currentValue);
+    } else {
+        console.log(currentValue);
+        num2 = Number(currentValue);
+    };
+
     if (!isEqualsSelected) nextOperator = operatorId;
     getResult();
 
     currentValue = "";
-    displayValue.textContent = currentValue;
+    // displayValue.textContent = currentValue;
     isDecimalAccepted = "yes";
 };
 
 // Function to get the result by calling the relevant operation
 function getResult() {
     const isNum1Defined = num1 != undefined;
-    const isExtraSqrtOperatorDefined = extraSqrtOperator != undefined;
+    const isSqrtOperatorDefined = sqrtOperator != undefined;
+    const isNum3Defined = num3 != undefined;
 
     if (!isNum1Defined) {   // operation is sqrt of num2
-        result = operations[operator](num2);
-    } else if (!isExtraSqrtOperatorDefined) {   // operation is operator of num1 and num2
-        result = operations[operator](num1, num2);
-    } else {    // operation is operator of num1 and (sqrt of num2)
-        let intermediate = operations[extraSqrtOperator](num2); 
-        result = operations[operator](num1, intermediate);
+        if (num2 < 0) {
+            alert("You cannot get the square root of a negative number!");
+            num2 = null;
+            result = null;
+        } else {
+            result = operations[sqrtOperator](num2);
+        };
+    } else if (!isSqrtOperatorDefined) {   // operation is operator of num1 and num2
+        if (operator === "divide" && num2 === 0) {
+            alert("You cannot divide by zero!");
+            num2 = null;
+            result = null;
+        } else {
+            result = operations[operator](num1, num2);
+        };
+    } else if (!isNum3Defined) {    // operation is operator of num1 and (sqrt of num2)
+        if (num2 < 0) {
+            alert("You cannot get the square root of a negative number!");
+            num2 = null;
+            result = null;
+        } else if (operator === "divide" && num2 === 0) {
+            alert("You cannot divide by zero!");
+            num2 = null;
+            result = null;
+        } else {
+            let intermediate = operations[sqrtOperator](num2);
+            result = operations[operator](num1, intermediate);
+        };
+    } else {    // operation is operator of num1 and (num2 multiplied by sqrt of num3)
+        if (num3 < 0) {
+            alert("You cannot get the square root of a negative number!");
+            num3 = null;
+            result = null;
+        } else if (operator === "divide" && num3 === 0) {
+            alert("You cannot divide by zero!");
+            num3 = null;
+            result = null;
+        } else {
+            let intermediate1 = operations[sqrtOperator](num3);
+            let intermediate2 = operations["multiply"](num2, intermediate1);
+            result = operations[operator](num1, intermediate2);
+        };
     };
 };
 
-// Function to display result (rounded to 10 dec. places) when "equals" or another operator is selected
+// Function to display result when "equals" or another operator is selected
     // and reset and redefine variables
 function displayResult(buttonId, buttonDisplay) {
     const isEqualsSelected = buttonId === "equals";
-    
-    if (isEqualsSelected) {
-        displayOperation.textContent += " " + currentValue + " " + "=";
-        num1 = null;
-        operator = null;
-    } else {
-        displayOperation.textContent = Number(result.toFixed(10)).toString() + " " + buttonDisplay;
-        num1 = result;
-        operator = nextOperator;
-    };
+    const isNum3Defined = num3 != undefined;
+    const isResultDefined = result != undefined;
 
-    displayValue.textContent = Number(result.toFixed(10)).toString();
-    extraSqrtOperator = null;
-    num2 = null;
+    if (isResultDefined) {
+        if (isEqualsSelected) {
+            if (isNum3Defined) {
+                displayOperation.textContent += " " + Number(num3.toFixed(8)).toString() + " " + "=";
+            } else {
+                displayOperation.textContent += " " + Number(num2.toFixed(8)).toString() + " " + "=";
+            };
+            num1 = null;
+            operator = null;
+        } else {
+            displayOperation.textContent = Number(result.toFixed(8)).toString() + " " + buttonDisplay;
+            num1 = result;
+            operator = nextOperator;
+        };
+        
+        displayValue.textContent = Number(result.toFixed(10)).toString();
+        sqrtOperator = null;
+        num2 = null;
+        num3 = null;
+    } else {
+        displayValue.textContent = ""
+    };
 };
 
 // Function to delete the last digit entered when the DELETE button is clicked (and a number is being entered)
@@ -167,10 +242,10 @@ function deleteLastDigit() {
 
 // Function to delete the last operator when the DELETE button is clicked (and an operator was last entered)
 function deleteLastOperator() {
-    const isExtraSqrtOperatorDefined = extraSqrtOperator != undefined;
+    const isSqrtOperatorDefined = sqrtOperator != undefined;
     const isNum1Defined = num1 != undefined;
 
-    if (!isExtraSqrtOperatorDefined) {
+    if (!isSqrtOperatorDefined) {
         operator = null;
         if (isNum1Defined) {
             currentValue = num1.toString();
@@ -178,7 +253,7 @@ function deleteLastOperator() {
             if (currentValue.includes(".") === true) isDecimalAccepted = "no";
         };
     } else {
-        extraSqrtOperator = null;
+        sqrtOperator = null;
     };
 
     let operationStr = displayOperation.textContent;
@@ -191,14 +266,37 @@ function clearData() {
     isDecimalAccepted = "yes";
     currentValue = "";
     operator = null;
-    extraSqrtOperator = null;
+    sqrtOperator = null;
     num1 = null;
     num2 = null;
     nextOperator = null;
+    num3 = null;
     result = null;
 
     displayValue.textContent = "";
     displayOperation.textContent = "";
+};
+
+// Function to change sign of the data when the plus-minus button is clicked
+function changeSign() {
+    const isCurrentValueBlank = currentValue === "";
+    const isDisplayOperationBlank = displayOperation.textContent === "";
+    const isOperatorDefined = operator != undefined;
+    const isCurrentValueNegative = currentValue.includes("-");
+    const isSqrtOperatorDefined = sqrtOperator != undefined;
+
+    if (!isCurrentValueBlank) {
+        if (isCurrentValueNegative) {
+            currentValue = currentValue.substring(1);
+        } else {
+            currentValue = "-" + currentValue;
+        };
+        if (!isDisplayOperationBlank && !isOperatorDefined && !isSqrtOperatorDefined) displayOperation.textContent = currentValue;
+    } else {
+        currentValue = "-";
+    };
+
+    displayValue.textContent = currentValue;
 };
 
 
@@ -222,15 +320,15 @@ function makeOperatorsClickable() {
     operatorButtons.forEach((operatorButton => {
         operatorButton.addEventListener("click", () => {
             const isOperatorDefined = operator != undefined;
-            const isExtraSqrtOperatorDefined = extraSqrtOperator != undefined;
+            const isSqrtOperatorDefined = sqrtOperator != undefined;
             const isThisOperatorSqrt = operatorButton.id === "sqrt";
             const isCurrentValueBlank = currentValue === "";
 
             if (!isOperatorDefined) {
                 setNum1(operatorButton.id);
                 setOperator(operatorButton.id, operatorButton.textContent);
-            } else if (!isExtraSqrtOperatorDefined && isThisOperatorSqrt) {
-                setExtraSqrtOperator(operatorButton.id, operatorButton.textContent);
+            } else if (!isSqrtOperatorDefined && isThisOperatorSqrt) {
+                setSqrtOperator(operatorButton.id, operatorButton.textContent);
             } else if (isOperatorDefined && !isCurrentValueBlank) {
                 setNum2(operatorButton.id);
                 displayResult(operatorButton.id, operatorButton.textContent);
@@ -239,38 +337,46 @@ function makeOperatorsClickable() {
     }));
 };
 
-// Add an event listener (click) to the "equals" button
+// Add an event listener (click) to the equals button
 function makeEqualsClickable() {
     equalsButton.addEventListener("click", () => {
         const isCurrentValueBlank = currentValue === "";
         const isOperatorDefined = operator != undefined;
+        const isSqrtOperatorDefined = sqrtOperator != undefined;
         
-        if (isOperatorDefined && !isCurrentValueBlank) {
+        if ((isOperatorDefined || isSqrtOperatorDefined) && !isCurrentValueBlank) {
             setNum2(equalsButton.id);
             displayResult(equalsButton.id, equalsButton.textContent);
         };
     });
 };
 
-// Add an event listener (click) to the "DELETE" button
+// Add an event listener (click) to the DELETE button
 function makeDeleteClickable() {
     deleteButton.addEventListener("click", () => {
         const isCurrentValueBlank = currentValue === "";
         const isOperatorDefined = operator != undefined;
-        const isExtraSqrtOperatorDefined = extraSqrtOperator != undefined;
+        const isSqrtOperatorDefined = sqrtOperator != undefined;
 
         if (!isCurrentValueBlank) {
             deleteLastDigit();
-        } else if (isCurrentValueBlank && (isOperatorDefined || isExtraSqrtOperatorDefined)) {
+        } else if (isCurrentValueBlank && (isOperatorDefined || isSqrtOperatorDefined)) {
             deleteLastOperator();
         };
     });
 };
 
-// Add an event listener (click) to the "CLEAR" button
+// Add an event listener (click) to the CLEAR button
 function makeClearClickable() {
     clearButton.addEventListener("click", () => {
         clearData();
+    });
+};
+
+// Add an event listener (click) to the plus-minus button
+function makePlusMinusClickable() {
+    plusMinusButton.addEventListener("click", () => {
+        changeSign();
     });
 };
 
@@ -281,3 +387,4 @@ makeOperatorsClickable();
 makeEqualsClickable();
 makeDeleteClickable();
 makeClearClickable();
+makePlusMinusClickable();
