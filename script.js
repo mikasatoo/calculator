@@ -180,6 +180,8 @@ function deleteLastOperator() {
         if (num1 != undefined) {
             currentValue = num1.toString();
             num1 = null;
+            // Change decimalAccepted back to "no" if currentValue includes "."
+            if (currentValue.includes(".") === true) decimalAccepted = "no";
         };
     // Else, reset value of operatorValue2
     } else {
@@ -231,10 +233,12 @@ function makeOperatorsClickable() {
                 // call the setCalcVariables1() function
             if ((operatorValue1 === "") || (operatorValue1 !== "sqrt" && operatorButton.id === "sqrt" && operatorValue2 === "")) {
                 setCalcVariables1(operatorButton.id, operatorButton.textContent);
-            // Else, exit this run of the function
-            } else {
-                return;
+            // Else if operatorValue1 and currentValue are NOT blank (i.e. one operator and two numbers OR sqrt and one number have been selected/entered),
+                // call the setCalcVariables2() function
+            } else if (operatorValue1 !== "" && currentValue !== "") {
+                setCalcVariables2();
             };
+            // Otherwise, do nothing
         });
     }));
 };
@@ -244,7 +248,7 @@ function makeEqualsClickable() {
     equalsButton.addEventListener("click", () => {
         // Call the setCalcVariables2() function if operatorValue1 and currentValue are NOT blank 
             // (i.e. one operator and two numbers OR sqrt and one number have been selected/entered)
-        if ((operatorValue1 !== "" && currentValue !== "")) {
+        if (operatorValue1 !== "" && currentValue !== "") {
             setCalcVariables2();
         };
         // Otherwise, do nothing
