@@ -36,136 +36,130 @@ const deleteButton = document.getElementById("delete");
 const clearButton = document.getElementById("clear");
 
 // Other global variables
-let decimalAccepted = "yes";    // indicates whether a decimal can be accepted in the current value
+let isDecimalAccepted = "yes";
 let currentValue = "";
 let num1;
-let operatorValue1 = "";
-let operatorValue2 = "";
+let operator;
+let extraSqrtOperator;
 let num2;
+let nextOperator;
 let result;
 
-// Function to run when digit is clicked
+// Function to update currentValue and isDecimalAccepted when digit is clicked
 function selectDigit(digit) {
-    // Call the updateCurrentValue() function
-    updateCurrentValue(digit);
+    const isDecimal = digit === ".";
 
-    // If the "." button has been clicked, change decimalAccepted setting to "no"
-    if (digit === ".") {
-        decimalAccepted = "no";
-    };
+    updateCurrentValue(digit);
+    if (isDecimal) isDecimalAccepted = "no";
 };
 
-// Function to update and display value as digits are entered
+// Function to update and display currentValue as digits are entered
 function updateCurrentValue(digit) {
-    // Append digit to currentValue
+    const isDisplayOperationBlank = displayOperation.textContent === "";
+    const isOperatorDefined = operator != undefined;
+
     currentValue += digit;
 
-    // If the displayOperation text content is NOT blank but operatorValue1 has NOT been defined (i.e. only a number is shown in displayOperation), 
-        // update the displayOperation text content
-    if (displayOperation.textContent !== "" && operatorValue1 === "") {
+    if (!isDisplayOperationBlank && !isOperatorDefined) {
         displayOperation.textContent = currentValue;
-    // Else, update the displayValue text content
     } else {
         displayValue.textContent = currentValue;
     };
 };
 
-// Function to set first number and operator/s for the calc when operator is selected
-function setCalcVariables1(operatorId, operatorDisplay) {
-    // Set value of num1:
-    // If currentValue is blank and operatorId is NOT sqrt, set num1 to zero
-    if (currentValue === "" && operatorId !== "sqrt") {
-        num1 = 0;
-        updateCurrentValue("0");
-    // Else if currentValue is NOT blank, set num1 to currentValue (converted into a number)
-    } else if (currentValue !== "") {
+// Function to set first number in the calculator operation when operator is selected
+function setNum1(operatorId) {
+    const isCurrentValueBlank = currentValue === "";
+    const isThisOperatorSqrt = operatorId === "sqrt";
+    const isResultDefined = result != undefined;
+
+    if (isCurrentValueBlank) {
+        if (isResultDefined) {
+            num1 = result;
+        } else if (!isThisOperatorSqrt) {
+            num1 = 0;
+            updateCurrentValue("0");
+        };
+    } else if (!isCurrentValueBlank) {
         num1 = Number(currentValue);
     };
+};
 
-    // If operator is blank, set OperatorValue1 and text for displayOperation
-    if (operatorValue1 === "") {
-        operatorValue1 = operatorId;
-        displayOperation.textContent = currentValue + " " + operatorDisplay;
-    // Else, set OperatorValue2 and append to displayOperation
-    } else {
-        operatorValue2 = operatorId;
-        displayOperation.textContent += " " + operatorDisplay;
-    };
-    
-    // Reset currentValue and decimalAccepted
+// Function to set operator in the calculator operation when operator is selected
+function setOperator(operatorId, operatorDisplay) {
+    operator = operatorId;
+    displayOperation.textContent = currentValue + " " + operatorDisplay;
+
     currentValue = "";
     displayValue.textContent = currentValue;
-    decimalAccepted = "yes";
+    isDecimalAccepted = "yes";
 };
 
-// Function to set number/s and operator/s for the calc when "equals" is selected
-// ***** OR when another operator is selected
-function setCalcVariables2() {
-    // Set value of num1 or num2:
-    // If currentValue is NOT blank...
-    if (currentValue !== "") {
-        // If num1 has not been defined yet (e.g. when using "sqrt"), set num1 to currentValue (converted into a number)
-            // (using loose equality since null == undefined returns true)
-        if (num1 == undefined) {
-            num1 = Number(currentValue);
-        // Else, set num2 to currentValue (converted into a number)
-        } else {
-            num2 = Number(currentValue);
-        };
-    };
+// Function to set extraSqrtOperator in the calculator operation when sqrt operator is selected
+function setExtraSqrtOperator(operatorId, operatorDisplay) {
+    extraSqrtOperator = operatorId;
+    displayOperation.textContent += " " + operatorDisplay;
+};
 
-    // Call the operate() function:
-    // If there is only one operator...
-    if (operatorValue2 === "") {
-        // If the operator is "sqrt", pass in only num1
-        if (operatorValue1 === "sqrt") {
-            operate(num1, operatorValue1);
-        // Else, pass in num1 and num2
-        } else {
-            operate(num1, operatorValue1, num2);
-        };
-    // Else if there are two operators (operatorValue2 being "sqrt"), pass in num1, num2, and both operators
-    } else {
-        operate(num1, operatorValue1, num2, operatorValue2);
-    };
-    displayOperation.textContent += " " + currentValue + " " + "=";
-    
-    // Reset currentValue and decimalAccepted
+// Function to set second number in the calculator operation when "equals" or another operator is selected
+    // and call the getResult() function
+function setNum2(operatorId) {
+    const isEqualsSelected = operatorId === "equals";
+
+    num2 = Number(currentValue);
+    if (!isEqualsSelected) nextOperator = operatorId;
+    getResult();
+
     currentValue = "";
-    decimalAccepted = "yes";
+    displayValue.textContent = currentValue;
+    isDecimalAccepted = "yes";
 };
 
-// Function to call relevant operation and display result (rounded to 10 dec. places)
-function operate(x, operator1, y, operator2) {
-    // If y is not defined, pass in only x
-    if (y === undefined) {
-        result = operations[operator1](x);
-    // Else if operator2 is not defined, pass in x and y
-    } else if (operator2 === undefined) {
-        result = operations[operator1](x, y);
-    // Else, set z by passing y into the second operation (sqrt) and then pass x and z into the first operation
+// Function to get the result by calling the relevant operation
+function getResult() {
+    const isNum1Defined = num1 != undefined;
+    const isExtraSqrtOperatorDefined = extraSqrtOperator != undefined;
+
+    if (!isNum1Defined) {   // operation is sqrt of num2
+        result = operations[operator](num2);
+    } else if (!isExtraSqrtOperatorDefined) {   // operation is operator of num1 and num2
+        result = operations[operator](num1, num2);
+    } else {    // operation is operator of num1 and (sqrt of num2)
+        let intermediate = operations[extraSqrtOperator](num2); 
+        result = operations[operator](num1, intermediate);
+    };
+};
+
+// Function to display result (rounded to 10 dec. places) when "equals" or another operator is selected
+    // and reset and redefine variables
+function displayResult(buttonId, buttonDisplay) {
+    const isEqualsSelected = buttonId === "equals";
+    
+    if (isEqualsSelected) {
+        displayOperation.textContent += " " + currentValue + " " + "=";
+        num1 = null;
+        operator = null;
     } else {
-        z = operations[operator2](y);
-        result = operations[operator1](x, z);
+        displayOperation.textContent = Number(result.toFixed(10)).toString() + " " + buttonDisplay;
+        num1 = result;
+        operator = nextOperator;
     };
 
-    displayValue.textContent = Number(result.toFixed(10));
+    displayValue.textContent = Number(result.toFixed(10)).toString();
+    extraSqrtOperator = null;
+    num2 = null;
 };
 
 // Function to delete the last digit entered when the DELETE button is clicked (and a number is being entered)
 function deleteLastDigit() {
-    let lastDigit = currentValue.substring(currentValue.length - 1, currentValue.length);
+    const lastDigit = currentValue.substring(currentValue.length - 1, currentValue.length);
+    const isDisplayValueBlank = displayValue.textContent === "";
 
-    // Reset decimalAccepted if the lastDigit is "."
-    if (lastDigit === ".") decimalAccepted = "yes";
-
-    // Remove the last character from the currentValue string
+    if (lastDigit === ".") isDecimalAccepted = "yes";
     currentValue = currentValue.substring(0, currentValue.length - 1);
 
-    // If the displayValue text content is NOT blank (i.e. a number is still being entered), update the displayValue text content
-    if (displayValue.textContent !== "") {
+    if (!isDisplayValueBlank) {
         displayValue.textContent = currentValue;
-    // Else, update the displayOperation text content
     } else {
         displayOperation.textContent = currentValue;
     };
@@ -173,22 +167,20 @@ function deleteLastDigit() {
 
 // Function to delete the last operator when the DELETE button is clicked (and an operator was last entered)
 function deleteLastOperator() {
-    // If there is only one operator, reset value of operatorValue1
-    if (operatorValue2 === "") {
-        operatorValue1 = "";
-        // If num1 has been defined, set currentValue to num1 (converted into a string) - so that it will then be deleted if DELETE is clicked again
-        if (num1 != undefined) {
+    const isExtraSqrtOperatorDefined = extraSqrtOperator != undefined;
+    const isNum1Defined = num1 != undefined;
+
+    if (!isExtraSqrtOperatorDefined) {
+        operator = null;
+        if (isNum1Defined) {
             currentValue = num1.toString();
             num1 = null;
-            // Change decimalAccepted back to "no" if currentValue includes "."
-            if (currentValue.includes(".") === true) decimalAccepted = "no";
+            if (currentValue.includes(".") === true) isDecimalAccepted = "no";
         };
-    // Else, reset value of operatorValue2
     } else {
-        operatorValue2 = "";
+        extraSqrtOperator = null;
     };
 
-    // Remove the last operator (and the space) from the displayOperation string
     let operationStr = displayOperation.textContent;
     operationStr = operationStr.substring(0, operationStr.length - 2);
     displayOperation.textContent = operationStr;
@@ -196,12 +188,13 @@ function deleteLastOperator() {
 
 // Function to reset all data (stored values and display) when the CLEAR button is clicked
 function clearData() {
-    decimalAccepted = "yes";
+    isDecimalAccepted = "yes";
     currentValue = "";
-    operatorValue1 = "";
-    operatorValue2 = "";
+    operator = null;
+    extraSqrtOperator = null;
     num1 = null;
     num2 = null;
+    nextOperator = null;
     result = null;
 
     displayValue.textContent = "";
@@ -213,10 +206,10 @@ function clearData() {
 function makeDigitsClickable() {
     digitButtons.forEach((digitButton => {
         digitButton.addEventListener("click", () => {
-            // Exit this run of the function if the "." button has been clicked and decimalAccepted is set to "no"
-            if (digitButton.id === "." && decimalAccepted === "no") {
+            const isDecimal = digitButton.id === ".";
+
+            if (isDecimal && isDecimalAccepted === "no") {
                 return;
-            // Else, call the selectDigit() function
             } else {
                 selectDigit(digitButton.id);
             };
@@ -228,17 +221,20 @@ function makeDigitsClickable() {
 function makeOperatorsClickable() {
     operatorButtons.forEach((operatorButton => {
         operatorButton.addEventListener("click", () => {
-            // If operatorValue1 is blank (i.e. no operator has been defined yet)
-                // OR if operatorValue1 is not "sqrt" AND the "sqrt" button has been clicked AND operatorValue2 is blank (not yet entered), 
-                // call the setCalcVariables1() function
-            if ((operatorValue1 === "") || (operatorValue1 !== "sqrt" && operatorButton.id === "sqrt" && operatorValue2 === "")) {
-                setCalcVariables1(operatorButton.id, operatorButton.textContent);
-            // Else if operatorValue1 and currentValue are NOT blank (i.e. one operator and two numbers OR sqrt and one number have been selected/entered),
-                // call the setCalcVariables2() function
-            } else if (operatorValue1 !== "" && currentValue !== "") {
-                setCalcVariables2();
+            const isOperatorDefined = operator != undefined;
+            const isExtraSqrtOperatorDefined = extraSqrtOperator != undefined;
+            const isThisOperatorSqrt = operatorButton.id === "sqrt";
+            const isCurrentValueBlank = currentValue === "";
+
+            if (!isOperatorDefined) {
+                setNum1(operatorButton.id);
+                setOperator(operatorButton.id, operatorButton.textContent);
+            } else if (!isExtraSqrtOperatorDefined && isThisOperatorSqrt) {
+                setExtraSqrtOperator(operatorButton.id, operatorButton.textContent);
+            } else if (isOperatorDefined && !isCurrentValueBlank) {
+                setNum2(operatorButton.id);
+                displayResult(operatorButton.id, operatorButton.textContent);
             };
-            // Otherwise, do nothing
         });
     }));
 };
@@ -246,23 +242,26 @@ function makeOperatorsClickable() {
 // Add an event listener (click) to the "equals" button
 function makeEqualsClickable() {
     equalsButton.addEventListener("click", () => {
-        // Call the setCalcVariables2() function if operatorValue1 and currentValue are NOT blank 
-            // (i.e. one operator and two numbers OR sqrt and one number have been selected/entered)
-        if (operatorValue1 !== "" && currentValue !== "") {
-            setCalcVariables2();
+        const isCurrentValueBlank = currentValue === "";
+        const isOperatorDefined = operator != undefined;
+        
+        if (isOperatorDefined && !isCurrentValueBlank) {
+            setNum2(equalsButton.id);
+            displayResult(equalsButton.id, equalsButton.textContent);
         };
-        // Otherwise, do nothing
     });
 };
 
 // Add an event listener (click) to the "DELETE" button
 function makeDeleteClickable() {
     deleteButton.addEventListener("click", () => {
-        // If currentValue is NOT blank (i.e. a number is currently being entered, call the deleteLastDigit() function
-        if (currentValue !== "") {
+        const isCurrentValueBlank = currentValue === "";
+        const isOperatorDefined = operator != undefined;
+        const isExtraSqrtOperatorDefined = extraSqrtOperator != undefined;
+
+        if (!isCurrentValueBlank) {
             deleteLastDigit();
-        // Else if currentValue is blank AND an operator has been entered, call the deleteLastOperator() function
-        } else if (currentValue === "" && (operatorValue1 !== "" || operatorValue2 !== "")) {
+        } else if (isCurrentValueBlank && (isOperatorDefined || isExtraSqrtOperatorDefined)) {
             deleteLastOperator();
         };
     });
