@@ -450,7 +450,7 @@ function makeKeysClickable() {
             map = {};
             return;
         };
-
+        
         // Special cases
         const specialOperators = ["Equal", "Digit8", "Digit5"];
         if (specialOperators.some((specialOperator) => specialOperator in map)) {
