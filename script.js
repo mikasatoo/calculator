@@ -130,7 +130,6 @@ function setNum2(operatorId) {
     if (isNum2Defined) {
         num3 = Number(currentValue);
     } else {
-        console.log(currentValue);
         num2 = Number(currentValue);
     };
 
@@ -138,7 +137,6 @@ function setNum2(operatorId) {
     getResult();
 
     currentValue = "";
-    // displayValue.textContent = currentValue;
     isDecimalAccepted = "yes";
 };
 
@@ -324,12 +322,12 @@ function makeOperatorsClickable() {
             const isThisOperatorSqrt = operatorButton.id === "sqrt";
             const isCurrentValueBlank = currentValue === "";
 
-            if (!isOperatorDefined) {
+            if (!isOperatorDefined && !isSqrtOperatorDefined) {
                 setNum1(operatorButton.id);
                 setOperator(operatorButton.id, operatorButton.textContent);
             } else if (!isSqrtOperatorDefined && isThisOperatorSqrt) {
                 setSqrtOperator(operatorButton.id, operatorButton.textContent);
-            } else if (isOperatorDefined && !isCurrentValueBlank) {
+            } else if (!isCurrentValueBlank) {
                 setNum2(operatorButton.id);
                 displayResult(operatorButton.id, operatorButton.textContent);
             };
