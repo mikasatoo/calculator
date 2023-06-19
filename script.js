@@ -385,60 +385,84 @@ function makeKeysClickable() {
     window.addEventListener("keydown", (e) => {
         const isDecimal = e.code === "Period";
         const isOperatorDefined = operator != undefined;
+        const isSqrtOperatorDefined = sqrtOperator != undefined;
         const isCurrentValueBlank = currentValue === "";
+        const isCurrentValueNegative = currentValue.includes("-");
         
-        if (e.defaultPrevented) {
-            return;     // Do nothing if event already handled
-        };
-        
-        if (isDecimal && isDecimalAccepted === "no") {
-            return;     // Do nothing if decimal not accepted
+        if (e.defaultPrevented || (isDecimal && isDecimalAccepted === "no")) {
+            return;     // Do nothing if event already handled or if decimal not accepted
         };
 
         map[e.code] = true;
-        console.log(map);
 
-        switch (true) {
-            // Numbers (5 and 8 are under special cases)
-            case "Digit1" in map:
-            case "Digit2" in map:
-            case "Digit3" in map:
-            case "Digit4" in map:
-            case "Digit6" in map:
-            case "Digit7" in map:
-            case "Digit9" in map:
-            case "Digit0" in map:
-                digitStr = (e.code).toString();
-                digit = digitStr.substring(digitStr.length - 1, digitStr.length);
-                selectDigit(digit);
-                console.log(currentValue);
-                break;
-            
-            // Period
-            case "Period" in map:
-                digit = ".";
-                selectDigit(digit);
-                break;
-            
-            // ***** Backspace / delete
-            // case "Backspace" in map:
-    
-            
-            // Operators (=, +, *, and % are under special cases)
-            case "Minus" in map:
-            case "Slash" in map:
-            case "Enter" in map:
-                if ("Enter" in map) {
+        // Numbers (5 and 8 are under special cases)
+        const numbers = ["Digit1", "Digit2", "Digit3", "Digit4", "Digit6", "Digit7", "Digit9", "Digit0"];
+        if (numbers.some((number) => number in map)) {
+            const digitStr = e.code.toString();
+            const digit = digitStr.substring(digitStr.length - 1, digitStr.length);
+            selectDigit(digit);
+
+            map = {};   // reset map object
+            return;
+        };
+
+        // Period
+        if ("Period" in map) {
+            selectDigit(".");
+
+            map = {};
+            return;
+        };
+
+        // Backspace
+        if ("Backspace" in map) {
+            if (!isCurrentValueBlank) {
+                deleteLastDigit();
+            } else if (isCurrentValueBlank && (isOperatorDefined || isSqrtOperatorDefined)) {
+                deleteLastOperator();
+            };
+
+            map = {};
+            return;
+        };
+
+        // Operators (=, +, *, and % are under special cases)
+        const operators = {
+            Enter: {id: "equals", text: "="},
+            Minus: {id: "subtract", text: "-"},
+            Slash: {id: "divide", text: "/"}
+        };
+
+        if (Object.keys(operators).some((operator) => operator in map)) {
+            let keyId = operators[e.code]["id"];
+            let keyText = operators[e.code]["text"];
+
+            if ("Minus" in map && isOperatorDefined && isCurrentValueBlank && !isCurrentValueNegative) {
+                changeSign();
+            } else if (!isOperatorDefined) {
+                setNum1(keyId);
+                setOperator(keyId, keyText);
+            } else if (!isCurrentValueBlank && currentValue !== "-") {
+                setNum2(keyId);
+                displayResult(keyId, keyText);
+            };
+
+            map = {};
+            return;
+        };
+
+        // Special cases
+        const specialOperators = ["Equal", "Digit8", "Digit5"];
+        if (specialOperators.some((specialOperator) => specialOperator in map)) {
+            if ("Equal" in map) {
+                if ("ShiftLeft" in map || "ShiftRight" in map) {
+                    keyId = "add";
+                    keyText = "+";
+                } else {
                     keyId = "equals";
                     keyText = "=";
-                } else if ("Minus" in map) {
-                    keyId = "subtract";
-                    keyText = "-";
-                } else if ("Slash" in map) {
-                    keyId = "divide";
-                    keyText = "/";
                 };
-    
+
                 if (!isOperatorDefined) {
                     setNum1(keyId);
                     setOperator(keyId, keyText);
@@ -446,24 +470,25 @@ function makeKeysClickable() {
                     setNum2(keyId);
                     displayResult(keyId, keyText);
                 };
-                break;
-            
-            // Special cases
-            case "ShiftLeft" in map:
-            case "ShiftRight" in map:
-            case "Equal" in map:
-            case "Digit8" in map:
-            case "Digit5" in map:
-                if ("Equal" in map) {
-                    if ("ShiftLeft" in map || "ShiftRight" in map) {
-                        console.log(map);
-                        keyId = "add";
-                        keyText = "+";
-                    } else {
-                        console.log(map);
-                        keyId = "equals";
-                        keyText = "=";
+            } else if ("Digit8" in map) {
+                if ("ShiftLeft" in map || "ShiftRight" in map) {
+                    keyId = "multiply";
+                    keyText = "*";
+                    
+                    if (!isOperatorDefined) {
+                        setNum1(keyId);
+                        setOperator(keyId, keyText);
+                    } else if (!isCurrentValueBlank) {
+                        setNum2(keyId);
+                        displayResult(keyId, keyText);
                     };
+                } else {
+                    selectDigit("8");
+                };
+            } else if ("Digit5" in map) {
+                if ("ShiftLeft" in map || "ShiftRight" in map) {
+                    keyId = "modulus";
+                    keyText = "%";
 
                     if (!isOperatorDefined) {
                         setNum1(keyId);
@@ -472,44 +497,18 @@ function makeKeysClickable() {
                         setNum2(keyId);
                         displayResult(keyId, keyText);
                     };
-                    // map = {};
-                } else if ("Digit8" in map) {
-                    if ("ShiftLeft" in map || "ShiftRight" in map) {
-                        keyId = "multiply";
-                        keyText = "*";
-                        
-                        if (!isOperatorDefined) {
-                            setNum1(keyId);
-                            setOperator(keyId, keyText);
-                        } else if (!isCurrentValueBlank) {
-                            setNum2(keyId);
-                            displayResult(keyId, keyText);
-                        };
-                    } else {
-                        selectDigit("8");
-                    };
-                    // map = {};
-                } else if ("Digit5" in map) {
-                    if ("ShiftLeft" in map || "ShiftRight" in map) {
-                        keyId = "modulus";
-                        keyText = "%";
-    
-                        if (!isOperatorDefined) {
-                            setNum1(keyId);
-                            setOperator(keyId, keyText);
-                        } else if (!isCurrentValueBlank) {
-                            setNum2(keyId);
-                            displayResult(keyId, keyText);
-                        };
-                    } else {
-                        selectDigit("5");
-                    };
-                    // map = {};
+                } else {
+                    selectDigit("5");
                 };
-                break;
+            };
+            map = {};
+            return;
         };
-        console.log("Hey");
-        // map = {};   // reset map object
+
+        // Shift (needed in map for special cases)
+        if ("ShiftLeft" in map || "ShiftRight" in map) {
+            return;
+        };
     });
 };
 
