@@ -378,6 +378,141 @@ function makePlusMinusClickable() {
     });
 };
 
+// Add an event listener ("keydown") to the window
+let map = {};   // Array to keep track of multiple keys
+
+function makeKeysClickable() {
+    window.addEventListener("keydown", (e) => {
+        const isDecimal = e.code === "Period";
+        const isOperatorDefined = operator != undefined;
+        const isCurrentValueBlank = currentValue === "";
+        
+        if (e.defaultPrevented) {
+            return;     // Do nothing if event already handled
+        };
+        
+        if (isDecimal && isDecimalAccepted === "no") {
+            return;     // Do nothing if decimal not accepted
+        };
+
+        map[e.code] = true;
+        console.log(map);
+
+        switch (true) {
+            // Numbers (5 and 8 are under special cases)
+            case "Digit1" in map:
+            case "Digit2" in map:
+            case "Digit3" in map:
+            case "Digit4" in map:
+            case "Digit6" in map:
+            case "Digit7" in map:
+            case "Digit9" in map:
+            case "Digit0" in map:
+                digitStr = (e.code).toString();
+                digit = digitStr.substring(digitStr.length - 1, digitStr.length);
+                selectDigit(digit);
+                console.log(currentValue);
+                break;
+            
+            // Period
+            case "Period" in map:
+                digit = ".";
+                selectDigit(digit);
+                break;
+            
+            // ***** Backspace / delete
+            // case "Backspace" in map:
+    
+            
+            // Operators (=, +, *, and % are under special cases)
+            case "Minus" in map:
+            case "Slash" in map:
+            case "Enter" in map:
+                if ("Enter" in map) {
+                    keyId = "equals";
+                    keyText = "=";
+                } else if ("Minus" in map) {
+                    keyId = "subtract";
+                    keyText = "-";
+                } else if ("Slash" in map) {
+                    keyId = "divide";
+                    keyText = "/";
+                };
+    
+                if (!isOperatorDefined) {
+                    setNum1(keyId);
+                    setOperator(keyId, keyText);
+                } else if (!isCurrentValueBlank) {
+                    setNum2(keyId);
+                    displayResult(keyId, keyText);
+                };
+                break;
+            
+            // Special cases
+            case "ShiftLeft" in map:
+            case "ShiftRight" in map:
+            case "Equal" in map:
+            case "Digit8" in map:
+            case "Digit5" in map:
+                if ("Equal" in map) {
+                    if ("ShiftLeft" in map || "ShiftRight" in map) {
+                        console.log(map);
+                        keyId = "add";
+                        keyText = "+";
+                    } else {
+                        console.log(map);
+                        keyId = "equals";
+                        keyText = "=";
+                    };
+
+                    if (!isOperatorDefined) {
+                        setNum1(keyId);
+                        setOperator(keyId, keyText);
+                    } else if (!isCurrentValueBlank) {
+                        setNum2(keyId);
+                        displayResult(keyId, keyText);
+                    };
+                    // map = {};
+                } else if ("Digit8" in map) {
+                    if ("ShiftLeft" in map || "ShiftRight" in map) {
+                        keyId = "multiply";
+                        keyText = "*";
+                        
+                        if (!isOperatorDefined) {
+                            setNum1(keyId);
+                            setOperator(keyId, keyText);
+                        } else if (!isCurrentValueBlank) {
+                            setNum2(keyId);
+                            displayResult(keyId, keyText);
+                        };
+                    } else {
+                        selectDigit("8");
+                    };
+                    // map = {};
+                } else if ("Digit5" in map) {
+                    if ("ShiftLeft" in map || "ShiftRight" in map) {
+                        keyId = "modulus";
+                        keyText = "%";
+    
+                        if (!isOperatorDefined) {
+                            setNum1(keyId);
+                            setOperator(keyId, keyText);
+                        } else if (!isCurrentValueBlank) {
+                            setNum2(keyId);
+                            displayResult(keyId, keyText);
+                        };
+                    } else {
+                        selectDigit("5");
+                    };
+                    // map = {};
+                };
+                break;
+        };
+        console.log("Hey");
+        // map = {};   // reset map object
+    });
+};
+
 
 // Initialization
 makeDigitsClickable();
@@ -386,3 +521,4 @@ makeEqualsClickable();
 makeDeleteClickable();
 makeClearClickable();
 makePlusMinusClickable();
+makeKeysClickable();
