@@ -473,7 +473,7 @@ function makeKeysClickable() {
             } else if ("Digit8" in map) {
                 if ("ShiftLeft" in map || "ShiftRight" in map) {
                     keyId = "multiply";
-                    keyText = "*";
+                    keyText = "x";
                     
                     if (!isOperatorDefined) {
                         setNum1(keyId);

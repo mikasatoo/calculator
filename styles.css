@@ -1,5 +1,5 @@
 body {
-    font-family: 'Courier New', Courier, monospace, Verdana, Arial;
+    font-family: Verdana, Arial;
     margin: 0;
     min-height: 100vh;
 }
@@ -23,9 +23,11 @@ body {
     padding-left: 20px;
     padding-right: 20px;
     padding-bottom: 10px;
-    border: solid black;
+    /* border: solid black; */
+    border: solid #1f1f1f;
     border-radius: 20px;
-    background-color: gainsboro;    /* ????? change calculator colour */
+    /* background-color: #f5f5f5; */
+    background-color: #1f1f1f;
     box-sizing: border-box;
     max-width: 350px;
     min-width: 300px;
@@ -38,7 +40,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    border: solid black;
+    /* border: solid black; */
+    border: solid #1f1f1f;
     border-width: 2px;
     border-radius: 10px;
     padding: 10px 20px;
@@ -47,39 +50,41 @@ body {
     box-sizing: border-box;
     width: 100%;
     min-height: 85.45px;
-    background-color: #eee;
+    background-color: white;
 }
 
 #display-operation {
     font-size: 16px;
-    min-height: 18.182px;
+    min-height: 20px;
 }
 
 #display-value {
-    font-size: 30px;
+    font-size: 36px;
     font-weight: bold;
-    min-height: 33.636px;
+    min-height: 43.636px;
 }
 
 /* Buttons */
 
 button {
-    font-family: 'Courier New', Courier, monospace, Verdana, Arial;
+    font-family: Verdana, Arial;
     font-size: 20px;
     text-align: center;
     padding: 10px;
     margin: 2px;
-    border: solid black;
-    border-width: 1.5px;
+    /* border: solid black;
+    border-width: 1.5px; */
+    border: none;
     border-radius: 5px;
     box-sizing: border-box;
+    width: 47.5px;
     flex: auto;
-    background-color: #eee;
+    background-color: white;
 
     &&:hover {
         transition: all 0.5s ease-out;
         cursor: pointer;
-        background-color: #ddd;
+        filter: brightness(85%);
     }
 }
 
@@ -90,19 +95,32 @@ button {
     margin-bottom: 5px;
 }
 
-.button-row#row6 .smaller-buttons {
+.button-row .smaller-buttons {
     display: flex;
     gap: 5px;
     width: 49%;
 }
 
-/* ????? add different button colours */
+button.operator,
+button#plus-minus {
+    background-color: rgb(175, 224, 249);
+}
 
+button#clear,
+button#delete {
+    background-color: #ff9681;
+}
+
+button#equals {
+    /* background-color: #b8e0d2; */
+    background-color: #afe1af;
+}
 
 /* Logo */
 
 .logo {
-    color: black;
+    /* color: black; */
+    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -113,5 +131,6 @@ button {
 }
 
 .logo a {
-    color: black;
+    /* color: black; */
+    color: white;
 }
