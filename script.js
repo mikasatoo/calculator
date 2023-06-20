@@ -35,6 +35,7 @@ const equalsButton = document.getElementById("equals");
 const deleteButton = document.getElementById("delete");
 const clearButton = document.getElementById("clear");
 const plusMinusButton = document.getElementById("plus-minus");
+const checkbox = document.getElementById("checkbox");
 
 // Other global variables
 let isDecimalAccepted = "yes";
@@ -76,7 +77,7 @@ function setNum1(operatorId) {
     if (isCurrentValueBlank) {
         if (isResultDefined) {
             num1 = result;
-            updateCurrentValue(Number(num1.toFixed(8)).toString());
+            updateCurrentValue(Number(num1.toFixed(4)).toString());
         } else if (!isThisOperatorSqrt) {
             num1 = 0;
             updateCurrentValue("0");
@@ -202,19 +203,19 @@ function displayResult(buttonId, buttonDisplay) {
     if (isResultDefined) {
         if (isEqualsSelected) {
             if (isNum3Defined) {
-                displayOperation.textContent += " " + Number(num3.toFixed(8)).toString() + " " + "=";
+                displayOperation.textContent += " " + Number(num3.toFixed(4)).toString() + " " + "=";
             } else {
-                displayOperation.textContent += " " + Number(num2.toFixed(8)).toString() + " " + "=";
+                displayOperation.textContent += " " + Number(num2.toFixed(4)).toString() + " " + "=";
             };
             num1 = null;
             operator = null;
         } else {
-            displayOperation.textContent = Number(result.toFixed(8)).toString() + " " + buttonDisplay;
+            displayOperation.textContent = Number(result.toFixed(4)).toString() + " " + buttonDisplay;
             num1 = result;
             operator = nextOperator;
         };
         
-        displayValue.textContent = Number(result.toFixed(8)).toString();
+        displayValue.textContent = Number(result.toFixed(4)).toString();
         sqrtOperator = null;
         num2 = null;
         num3 = null;
@@ -512,6 +513,13 @@ function makeKeysClickable() {
     });
 };
 
+// Add an event listener ("change" to the light / dark mode toggle
+function makeToggleCLickable() {
+    checkbox.addEventListener("change", () => {
+        document.body.classList.toggle("dark");
+    });
+};
+
 
 // Initialization
 makeDigitsClickable();
@@ -521,3 +529,4 @@ makeDeleteClickable();
 makeClearClickable();
 makePlusMinusClickable();
 makeKeysClickable();
+makeToggleCLickable();
