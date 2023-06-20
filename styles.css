@@ -28,7 +28,7 @@ body {
     background-color: gainsboro;    /* ????? change calculator colour */
     box-sizing: border-box;
     max-width: 350px;
-    min-width: 250px;
+    min-width: 300px;
     flex: auto;
 }
 
