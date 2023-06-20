@@ -214,7 +214,7 @@ function displayResult(buttonId, buttonDisplay) {
             operator = nextOperator;
         };
         
-        displayValue.textContent = Number(result.toFixed(10)).toString();
+        displayValue.textContent = Number(result.toFixed(8)).toString();
         sqrtOperator = null;
         num2 = null;
         num3 = null;

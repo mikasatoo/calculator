@@ -1,3 +1,114 @@
+body {
+    font-family: 'Courier New', Courier, monospace, Verdana, Arial;
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* All content */
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+    border: solid black;
+    border-radius: 20px;
+    background-color: gainsboro;    /* ????? */
+    max-width: 350px;
+    min-width: 250px;
+    /* center horizontally ????? */
+}
+
+/* Display */
+
+.display {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    border: solid black;
+    border-width: 2px;
+    border-radius: 10px;
+    padding: 10px 20px;
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    gap: 10px;
+    min-width: 75%;
+    min-height: 61.818px;
+    background-color: #eee;
+}
+
 #display-operation {
-    color: blue;
+    font-size: 16px;
+
+    /* add transition ????? */
+}
+
+#display-value {
+    font-size: 30px;
+    font-weight: bold;
+
+    /* add transition ????? */
+}
+
+/* Buttons */
+
+button {
+    font-family: 'Courier New', Courier, monospace, Verdana, Arial;
+    font-size: 20px;
+    text-align: center;
+    padding: 10px;
+    margin: 2px;
+    border: solid black;
+    border-width: 1.5px;
+    border-radius: 5px;
+    flex: auto;
+    background-color: #eee;
+
+    &&:hover {
+        transition: all 0.5s ease-out;
+        cursor: pointer;
+        background-color: #ddd;
+    }
+}
+
+.button-row {
+    display: flex;
+    min-width: 88%;
+    margin: 0px 20px;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.button-row#row6 .smaller-buttons {
+    display: flex;
+    gap: 5px;
+    width: 49%;
+}
+
+/* ????? add different button colours */
+
+
+/* Logo */
+
+.logo {
+    color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.logo a {
+    color: black;
+    
+    /* ????? Make it spin? */
+    &&:hover {
+        transform: scale(1.1);
+    }
 }
