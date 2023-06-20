@@ -4,6 +4,19 @@ body {
     min-height: 100vh;
 }
 
+/* Colour variables */
+
+:root {
+    --off-black: #1f1f1f;
+    --off-white: #f5f5f5;
+    --white: white;
+    --black: black;
+    --pale-blue: rgb(175, 224, 249);
+    --pale-red: rgb(255, 170, 170);
+    --pale-green: #afe1af;
+
+}
+
 /* All content */
 
 .content {
@@ -23,11 +36,10 @@ body {
     padding-left: 20px;
     padding-right: 20px;
     padding-bottom: 10px;
-    /* border: solid black; */
-    border: solid #1f1f1f;
+    border: solid var(--off-black);
     border-radius: 20px;
-    /* background-color: #f5f5f5; */
-    background-color: #1f1f1f;
+    /* background-color: var(--off-white); */
+    background-color: var(--off-black);
     box-sizing: border-box;
     max-width: 350px;
     min-width: 300px;
@@ -40,8 +52,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    /* border: solid black; */
-    border: solid #1f1f1f;
+    border: solid var(--off-black);
     border-width: 2px;
     border-radius: 10px;
     padding: 10px 20px;
@@ -50,7 +61,7 @@ body {
     box-sizing: border-box;
     width: 100%;
     min-height: 85.45px;
-    background-color: white;
+    background-color: var(--white);
 }
 
 #display-operation {
@@ -79,7 +90,7 @@ button {
     box-sizing: border-box;
     width: 47.5px;
     flex: auto;
-    background-color: white;
+    background-color: var(--white);
 
     &&:hover {
         transition: all 0.5s ease-out;
@@ -103,24 +114,23 @@ button {
 
 button.operator,
 button#plus-minus {
-    background-color: rgb(175, 224, 249);
+    background-color: var(--pale-blue);
 }
 
 button#clear,
 button#delete {
-    background-color: #ff9681;
+    background-color: var(--pale-red);
 }
 
 button#equals {
-    /* background-color: #b8e0d2; */
-    background-color: #afe1af;
+    background-color: var(--pale-green);
 }
 
 /* Logo */
 
 .logo {
-    /* color: black; */
-    color: white;
+    /* color: var(--black); */
+    color: var(--white);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -131,6 +141,6 @@ button#equals {
 }
 
 .logo a {
-    /* color: black; */
-    color: white;
+    /* color: var(--black); */
+    color: var(--white);
 }
