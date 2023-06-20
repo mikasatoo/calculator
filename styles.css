@@ -8,15 +8,28 @@ body {
 
 .content {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.calculator {
+    display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 20px;
+    justify-content: center;
+    margin-top: 30px;
+    padding-top: 30px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 10px;
     border: solid black;
     border-radius: 20px;
-    background-color: gainsboro;    /* ????? */
+    background-color: gainsboro;    /* ????? change calculator colour */
+    box-sizing: border-box;
     max-width: 350px;
     min-width: 250px;
-    /* center horizontally ????? */
+    flex: auto;
 }
 
 /* Display */
@@ -29,27 +42,23 @@ body {
     border-width: 2px;
     border-radius: 10px;
     padding: 10px 20px;
-    margin-top: 20px;
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     gap: 10px;
-    min-width: 75%;
-    min-height: 61.818px;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 85.45px;
     background-color: #eee;
 }
 
 #display-operation {
     font-size: 16px;
-
-    /* add transition ????? */
+    min-height: 18.182px;
 }
 
 #display-value {
     font-size: 30px;
     font-weight: bold;
-
-    /* add transition ????? */
+    min-height: 33.636px;
 }
 
 /* Buttons */
@@ -63,6 +72,7 @@ button {
     border: solid black;
     border-width: 1.5px;
     border-radius: 5px;
+    box-sizing: border-box;
     flex: auto;
     background-color: #eee;
 
@@ -75,8 +85,7 @@ button {
 
 .button-row {
     display: flex;
-    min-width: 88%;
-    margin: 0px 20px;
+    width: 100%;
     gap: 5px;
     margin-bottom: 5px;
 }
@@ -99,16 +108,10 @@ button {
     align-items: center;
     font-size: 12px;
     text-align: center;
-    margin-top: 5px;
-    margin-bottom: 10px;
+    margin-top: 10px;
     gap: 10px;
 }
 
 .logo a {
     color: black;
-    
-    /* ????? Make it spin? */
-    &&:hover {
-        transform: scale(1.1);
-    }
 }
